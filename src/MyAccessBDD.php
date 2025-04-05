@@ -277,6 +277,30 @@ class MyAccessBDD extends AccessBDD {
         return $this->conn->queryBDD($requete, $champNecessaire);
     }
 
-    
+    private function ajouterCommande($params)
+{
+    $connexion = ConnexionBDD::getConnexion();
+
+    // 1️⃣ Insérer la commande dans la table "commande"
+    $sql = "INSERT INTO commande (dateCommande, montant) VALUES (:dateCommande, :montant)";
+    $stmt = $connexion->prepare($sql);
+    $stmt->bindParam(":dateCommande", $params['dateCommande']);
+    $stmt->bindParam(":montant", $params['montant']);
+    $stmt->execute();
+
+    // 2️⃣ Récupérer l'ID de la commande ajoutée
+    $idCommande = $connexion->lastInsertId();
+
+    // 3️⃣ Insérer dans la table "commandedocument"
+    $sql = "INSERT INTO commandedocument (nbExemplaire, idLivreDvd) VALUES (:nbExemplaire, :idLivreDvd)";
+    $stmt = $connexion->prepare($sql);
+    $stmt->bindParam(":nbExemplaire", $params['nbExemplaire']); // Quantité commandée
+    $stmt->bindParam(":idLivreDvd", $params['idLivreDvd']); // Référence du livre ou DVD
+    $stmt->execute();
+
+    return ["message" => "Commande ajoutée avec succès", "idCommande" => $idCommande];
+}
+
+
 
 }
