@@ -301,6 +301,32 @@ class MyAccessBDD extends AccessBDD {
     return ["message" => "Commande ajoutée avec succès", "idCommande" => $idCommande];
 }
 
+private function ajouterCommanderevue($params)
+{
+    $connexion = ConnexionBDD::getConnexion();
+
+    // 1️⃣ Insertion dans la table "commande"
+    $sqlCommande = "INSERT INTO commande (dateCommande, montant) VALUES (:dateCommande, :montant)";
+    $stmtCommande = $connexion->prepare($sqlCommande);
+    $stmtCommande->bindParam(":dateCommande", $params['dateCommande']);
+    $stmtCommande->bindParam(":montant", $params['montant']);
+    $stmtCommande->execute();
+
+    // 2️⃣ Récupération de l'id de la commande ajoutée
+    $idCommande = $connexion->lastInsertId();
+
+    // 3️⃣ Insertion dans la table "abonnement"
+    $sqlAbonnement = "INSERT INTO abonnement (id, dateFinAbonnement, idRevue) VALUES (:id, :dateFinAbonnement, :idRevue)";
+    $stmtAbonnement = $connexion->prepare($sqlAbonnement);
+    $stmtAbonnement->bindParam(":id", $idCommande); // même id que la commande
+    $stmtAbonnement->bindParam(":dateFinAbonnement", $params['dateFinAbonnement']);
+    $stmtAbonnement->bindParam(":idRevue", $params['idRevue']);
+    $stmtAbonnement->execute();
+
+    return ["message" => "Commande de revue ajoutée avec succès", "idCommande" => $idCommande];
+}
+
+
 
 
 }
